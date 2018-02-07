@@ -125,19 +125,19 @@
                                 </div>-->
                                 <div class="col-12 mb-3">
                                     <label>Date of Birth</label>
-                                    <input type="date" class="form-control pt-2 pb-2" id="signup_dob" name="dob" placeholder="Date of Birth">
+                                    <input type="date" class="form-control pt-2 pb-2" id="signup_dob" name="dob" placeholder="Date of Birth" required="required">
 
                                 </div>
                                 <div class="col-12">
                                     <label>Gender</label>
                                     <div class="col-9">
                                         <label class="custom-control custom-radio">
-                                            <input name="gender" type="radio" class="custom-control-input" value="1">
+                                            <input name="gender" type="radio" class="custom-control-input" value="Male" checked="checked">
                                             <span class="custom-control-indicator"></span>
                                             <span class="custom-control-description">Male</span>
                                         </label>
                                         <label class="custom-control custom-radio">
-                                            <input id="mixed0" name="gender" type="radio" class="custom-control-input" value="0">
+                                            <input id="mixed0" name="gender" type="radio" class="custom-control-input" value="Female">
                                             <span class="custom-control-indicator"></span>
                                             <span class="custom-control-description">Female</span>
                                         </label>
@@ -166,10 +166,11 @@
                     <!-- Modal body -->
                     <div class="modal-body py-3 px-5">
                         <h3 class="text-center mb-3">Forgot Password</h3>
-                        <form>
+                        <form action="#" method="post" id="forgot-form">
+                            <span class="form-msg"></span>
                             <div class="row justify-content-center">
                                 <div class="col-12 mb-3">
-                                    <input type="email" class="form-control pt-2 pb-2" id="forgot_email" name="forgot_email" placeholder="Email">
+                                    <input type="email" class="form-control pt-2 pb-2" id="forgot_email" name="email" placeholder="Email">
                                 </div>
                                 <div class="ButtonBox text-center col-12">
                                     <button type="submit" class="btn btn-primary">Submit</button>
@@ -239,6 +240,32 @@
                                 
                                 setTimeout(function(){
                                     $('#loginBox').modal('hide');
+                                    $('.form-msg').text('');
+                                }, 2000);
+                            }
+                            else{
+                                $('.form-msg').css('color', 'red').html(res.msg);
+                            }
+                            setTimeout(function(){
+                                $('.form-msg').text('');
+                            }, 3000);
+                        }
+                    });
+                })
+                
+                $('#forgot-form').submit(function (e) {
+                    e.preventDefault();
+                    $.ajax({
+                        type: 'POST',
+                        data: $(this).serialize(),
+                        url: '<?php echo base_url()."user/forgot-password" ?>',
+                        success: function (res) {
+                            if (res.status == 'Success') {
+                                $('.form-msg').css('color', 'green').text(res.msg);
+                                $('#forgot-form')[0].reset();
+                                
+                                setTimeout(function(){
+                                    $('#ForgotBox').modal('hide');
                                     $('.form-msg').text('');
                                 }, 2000);
                             }

@@ -32,7 +32,7 @@ class Admin extends CI_Controller
     {
         if ($this->session->userdata('username') == FALSE) {
             $this->session->set_userdata('error', 'You are not Logged In, Please Login First !');
-            redirect('user');
+            redirect('admin');
         }
     }
 

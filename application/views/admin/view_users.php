@@ -38,7 +38,11 @@
                                         <td><a href="<?php echo base_url('admin/view_user_receipts/'.$row['id']); ?>"><?php echo $row['username']; ?></a></td>
                                         <td><?php echo $row['email']; ?></td>
                                         <td><?php echo $row['gender']; ?></td>
-                                        <td><?php echo date('d-M-Y', strtotime($row['dob'])); ?></td>
+                                        <td><?php 
+                                        $date = explode('/', $row['dob']);
+                                        $m = date('F', mktime(0, 0, 0, $date[1], 10));
+                                        echo $date[0].' '.$m.', '.$date[2];
+                                        ?></td>
                                         <td><?php if($row['status'] == 1) { echo 'Active'; }else{ echo 'Pending'; } ?></td>
                                     </tr>
                                 <?php endforeach; ?>

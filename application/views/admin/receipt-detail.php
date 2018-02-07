@@ -24,7 +24,7 @@
                                 <div class="row mb-4">
                                     <div class="col-md-4 col-sm-7 text-center">
                                         <div class="bgColor p-2 p-sm-3 mb-3">
-                                            <img src="<?php echo base_url('uploads/' . $receipt->image); ?>" alt="Logo" />
+                                            <img class="img-responsive AdditionClass" src="<?php echo base_url('uploads/' . $receipt->image); ?>" alt="Logo" />
                                         </div>
                                     </div>
                                     <div class="col-md-4">

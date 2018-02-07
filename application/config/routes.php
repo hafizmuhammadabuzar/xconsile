@@ -52,6 +52,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 $route['user/signup'] = 'api/signup';
 $route['user/login'] = 'api/login';
+$route['user/forgot-password'] = 'api/forgot_password';
 $route['account/verification'] = 'api/user_verify';
 $route['password/reset'] = 'api/reset_password';
 $route['api/updateReceipt'] = 'api/addReceipt';
