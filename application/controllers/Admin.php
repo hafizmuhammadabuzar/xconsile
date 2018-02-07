@@ -8,7 +8,6 @@ class Admin extends CI_Controller
 
     public function __construct()
     {
-
         parent::__construct();
 
         $this->load->model('Admin_model');
@@ -31,9 +30,9 @@ class Admin extends CI_Controller
 
     public function login_check()
     {
-        if ($this->session->userdata('admin_username') == FALSE) {
+        if ($this->session->userdata('username') == FALSE) {
             $this->session->set_userdata('error', 'You are not Logged In, Please Login First !');
-            redirect('admin');
+            redirect('user');
         }
     }
 
@@ -49,7 +48,7 @@ class Admin extends CI_Controller
         }
 
         if ($_POST['password'] == 'admin') {
-            $this->session->set_userdata('admin_username', $_POST['username']);
+            $this->session->set_userdata('username', $_POST['username']);
             redirect('admin/dashboard');
         }
         else {
@@ -85,14 +84,26 @@ class Admin extends CI_Controller
         $this->load->view('admin/footer');
     }
 
-    function view_user_receipts($id)
+    function view_user_receipts($user_id)
     {
         $this->login_check();
 
-        $result['detail'] = $this->Home_model->getAllRecords('receipts', '', ['user_id' => $id], 'id DESC');
+        $result['receipts'] = $this->Home_model->getAllRecords('receipts', '', ['user_id' => $user_id], 'id DESC');
+        $graph = $this->Home_model->getAllRecords('receipts', "sum(amount) as total_amount, date, created_at", ['user_id' => $user_id], 'STR_TO_DATE(date,"%d/%m/%Y") ASC', 'date');
 
         $this->load->view('admin/header');
-        $this->load->view('admin/view_detail', $result);
+        $this->load->view('admin/view_receipts', $result);
+        $this->load->view('admin/footer');
+    }
+    
+    function receipt_detail($id)
+    {
+        $this->login_check();
+
+        $result['receipt'] = $this->Home_model->getRecord('receipts', ['id' => $id]);
+
+        $this->load->view('admin/header');
+        $this->load->view('admin/receipt-detail', $result);
         $this->load->view('admin/footer');
     }
 

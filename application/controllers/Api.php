@@ -11,6 +11,7 @@ class Api extends CI_Controller {
 
         $this->load->model('Home_model');
         $this->load->library('form_validation');
+        $this->load->library('session');
 
         define('success', 'Success');
         define('error', 'Error');
@@ -67,13 +68,6 @@ class Api extends CI_Controller {
                 echo json_encode($result);
                 exit;
             }
-            
-//            if( !empty($_FILES['picture']['name']) ){
-//
-//                $ext = pathinfo($_FILES['picture']['name'], PATHINFO_EXTENSION);
-//                $image_name = uniqid() . '.' . $ext;
-//                move_uploaded_file($_FILES['picture']['tmp_name'], 'uploads/' . $image_name);
-//            }
 
             $res = $this->Home_model->saveRecord('users', $user_data);
 
@@ -82,7 +76,7 @@ class Api extends CI_Controller {
                 
                 $msg = 'Dear User, <br><br>
                         Confirm your email address to complete your activate your account. Its easy &#45 just click on the button below.</p>
-                        <a href="' . base_url() . 'account/verification/?status=' . $enc_token . '">Click Here</a><br><br>
+                        <a href="' . base_url() . 'account/verification/?status=' . $enc_token . '"><img src="'.base_url().'assets/images/confirm.jpg" /></a><br><br>
                         </body>
                         </html>';
 
@@ -109,12 +103,14 @@ class Api extends CI_Controller {
             if ($check) {
                 $enc_token = md5(time());
                 $this->Home_model->updateRecord('users', ['remember_token' => $token], array('status' => 1, 'remember_token' => $enc_token));
-                die('Account Successfully Verified');
-//                $this->load->view('reset_password', ['msg' => 'Account Successfully Verified']);
+                $data = ['msg' => 'Account Successfully Activated', 'color' => 'green'];
             } else {
-                die('Some error occurred');
-//                $this->load->view('reset_password', ['msg' => 'Some Error Occurred']);
+                $data = ['msg' => 'Some Error Occurred', 'color' => 'red'];
             }
+            
+            $this->load->view('header');
+            $this->load->view('success-msg', $data);
+            $this->load->view('footer');
         }
     }
 
@@ -135,7 +131,7 @@ class Api extends CI_Controller {
             if ($res) {
                 if ($res->status == 0) {
                     $result['status'] = 'pending';
-                    $result['msg'] = 'Not verified';
+                    $result['msg'] = 'Account not verified';
                 }
                 else if ($res->status == 2) {
                     $result['status'] = error;
@@ -148,6 +144,10 @@ class Api extends CI_Controller {
                     $result['profile']['email'] = $res->email;
                     $result['profile']['gender'] = $res->gender;
                     $result['profile']['dob'] = $res->dob;
+                    
+                    $this->load->library('session');
+                    $this->session->set_userdata('user_id', $res->id);
+                    $this->session->set_userdata('username', $res->username);
                 }
             } else {
                 $result['status'] = error;
@@ -191,7 +191,7 @@ class Api extends CI_Controller {
                     $result['msg'] = 'Not verified';
                 } else {
                     $msg = 'Please click the given link to Reset Password<br>
-                            <a href="' . base_url() . 'password/reset/?status=' . $check->remember_token . '" targer="blank">Click Here</a><br/><br/>If this email does not display correctly, please copy and paste the following link in your address bar: ' . base_url() . 'password/reset/?status=' . $check->remember_token;
+                            <a href="' . base_url() . 'password/reset?status=' . $check->remember_token . '" targer="blank"><img src="'.base_url().'assets/images/reset.jpg" /></a><br/><br/>If this email does not display correctly, please copy and paste the following link in your address bar: ' . base_url() . 'password/reset/?status=' . $check->remember_token;
 
                     $this->send_email($email, $check->username, 'XConsile Password Reset', $msg);
 
@@ -233,14 +233,20 @@ class Api extends CI_Controller {
         if (!isset($_POST['reset_btn'])) {
             $token = $_GET['status'];
             if (empty($token)) {
-                $this->load->view('reset_password', ['msg' => 'Invalid Request']);
+                $this->load->view('header');
+                $this->load->view('success-msg', ['msg' => 'Invalid Request', 'color' => 'red']);
+                $this->load->view('footer');
             } else {
                 $check = $this->Home_model->getRecord('users', ['remember_token' => "$token"]);
                 if ($check) {
                     $this->session->set_userdata('token', $token);
-                    $this->load->view('reset_password');
+                    $this->load->view('header');
+                    $this->load->view('reset-password');
+                    $this->load->view('footer');
                 } else {
-                    $this->load->view('reset_password', ['msg' => 'Link Expired']);
+                    $this->load->view('header');
+                    $this->load->view('success-msg', ['msg' => 'Link Expired', 'color' => 'red']);
+                    $this->load->view('footer');
                 }
             }
         } else {
@@ -248,7 +254,9 @@ class Api extends CI_Controller {
             $this->form_validation->set_rules('c_password', 'Confirm Password', 'required|matches[password]');
 
             if ($this->form_validation->run() == FALSE) {
-                $this->load->view('reset_password');
+                $this->load->view('header');
+                $this->load->view('reset-password');
+                $this->load->view('footer');
             } else {
                 if ($this->session->userdata('token') == TRUE) {
                     $data = ['password' => sha1($this->input->post('password')), 'remember_token' => md5(time())];
@@ -256,12 +264,18 @@ class Api extends CI_Controller {
                     if ($res == 0 || $res == 1) {
                         $this->session->unset_userdata('token');
                         session_destroy();
-                        $this->load->view('reset_password', ['msg' => 'Password Successfully Reset']);
+                        $this->load->view('header');
+                        $this->load->view('success-msg', ['msg' => 'Password Successfully Reset', 'color' => 'green']);
+                        $this->load->view('footer');
                     } else {
-                        $this->load->view('reset_password', ['msg' => 'Link Expired']);
+                        $this->load->view('header');
+                        $this->load->view('success-msg', ['msg' => 'Link Expired', 'color' => 'red']);
+                        $this->load->view('footer');
                     }
                 } else {
-                    $this->load->view('reset_password', ['msg' => 'Invalid Request']);
+                    $this->load->view('header');
+                    $this->load->view('success-msg', ['msg' => 'Invalid Request', 'color' => 'red']);
+                    $this->load->view('footer');
                 }
             }
         }

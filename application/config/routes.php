@@ -50,8 +50,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |		my-controller/my-method	-> my_controller/my_method
 */
 
+$route['user/signup'] = 'api/signup';
+$route['user/login'] = 'api/login';
 $route['account/verification'] = 'api/user_verify';
+$route['password/reset'] = 'api/reset_password';
 $route['api/updateReceipt'] = 'api/addReceipt';
+
+$route['user'] = 'user/dashboard';
+$route['user/receipts'] = 'user/view_receipts';
+$route['user/receipt-detail/(:num)'] = 'user/receipt_detail/$1';
+$route['admin/receipt-detail/(:num)'] = 'admin/receipt_detail/$1';
+
 
 $route['default_controller'] = 'home';
 $route['404_override'] = '';
